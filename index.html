@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>JARVIS AI</title>
+
+<link rel="manifest"
+href="manifest.json">
+
+<meta name="theme-color"
+content="#00f7ff">
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap"
+rel="stylesheet">
+
+<style>
+
+/* RESET */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Orbitron',sans-serif;
+}
+
+/* BODY */
+
+body{
+background:#000;
+height:100vh;
+overflow:hidden;
+color:#00f7ff;
+}
+
+/* GRID */
+
+body::before{
+content:"";
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+
+background:
+linear-gradient(rgba(0,255,255,0.05) 1px, transparent 1px),
+linear-gradient(90deg, rgba(0,255,255,0.05) 1px, transparent 1px);
+
+background-size:40px 40px;
+
+z-index:-1;
+}
+
+/* TOPBAR */
+
+.topbar{
+position:fixed;
+
+top:0;
+left:0;
+
+width:100%;
+height:60px;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+padding:0 20px;
+
+background:rgba(0,0,0,0.45);
+
+backdrop-filter:blur(10px);
+
+border-bottom:
+1px solid rgba(0,255,255,0.3);
+
+z-index:100;
+}
+
+.logo{
+font-size:22px;
+font-weight:bold;
+letter-spacing:4px;
+
+text-shadow:
+0 0 10px #00f7ff;
+}
+
+.clock{
+font-size:14px;
+}
+
+/* HUD */
+
+.center{
+position:fixed;
+
+top:35%;
+left:50%;
+
+transform:
+translate(-50%,-50%);
+
+width:260px;
+height:260px;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+z-index:10;
+}
+
+/* RINGS */
+
+.ring1{
+position:absolute;
+
+width:260px;
+height:260px;
+
+border:
+3px solid #00f7ff;
+
+border-radius:50%;
+
+box-shadow:
+0 0 20px #00f7ff;
+
+animation:
+rotate 15s linear infinite;
+}
+
+.ring2{
+position:absolute;
+
+width:190px;
+height:190px;
+
+border:
+2px dashed #00f7ff;
+
+border-radius:50%;
+
+animation:
+rotateReverse 8s linear infinite;
+}
+
+.ring3{
+position:absolute;
+
+width:110px;
+height:110px;
+
+border:
+4px solid #00f7ff;
+
+border-radius:50%;
+
+animation:
+pulse 2s infinite;
+}
+
+.core{
+width:55px;
+height:55px;
+
+background:#00f7ff;
+
+border-radius:50%;
+
+box-shadow:
+0 0 20px #00f7ff,
+0 0 50px #00f7ff;
+}
+
+/* ANIMATION */
+
+@keyframes rotate{
+
+from{
+transform:rotate(0deg);
+}
+
+to{
+transform:rotate(360deg);
+}
+
+}
+
+@keyframes rotateReverse{
+
+from{
+transform:rotate(360deg);
+}
+
+to{
+transform:rotate(0deg);
+}
+
+}
+
+@keyframes pulse{
+
+0%{
+transform:scale(1);
+}
+
+50%{
+transform:scale(1.1);
+}
+
+100%{
+transform:scale(1);
+}
+
+}
+
+/* CHAT AREA */
+
+.bottom{
+position:fixed;
+
+bottom:0;
+left:0;
+
+width:100%;
+
+height:35vh;
+
+background:
+rgba(0,0,0,0.65);
+
+backdrop-filter:
+blur(12px);
+
+border-top:
+1px solid rgba(0,255,255,0.3);
+
+display:flex;
+flex-direction:column;
+
+padding:12px;
+
+z-index:100;
+}
+
+/* TERMINAL */
+
+#terminal{
+flex:1;
+
+overflow-y:auto;
+overflow-x:hidden;
+
+font-size:14px;
+
+padding-right:8px;
+
+margin-bottom:10px;
+
+max-height:100%;
+}
+
+/* SCROLLBAR */
+
+#terminal::-webkit-scrollbar{
+width:6px;
+}
+
+#terminal::-webkit-scrollbar-thumb{
+background:#00f7ff;
+border-radius:10px;
+}
+
+/* INPUT */
+
+.input-area{
+display:flex;
+gap:10px;
+}
+
+input{
+flex:1;
+
+padding:14px;
+
+background:black;
+
+border:
+1px solid #00f7ff;
+
+color:#00f7ff;
+
+outline:none;
+
+border-radius:10px;
+
+font-size:15px;
+}
+
+button{
+padding:14px 18px;
+
+border:none;
+
+background:#00f7ff;
+
+color:black;
+
+font-weight:bold;
+
+cursor:pointer;
+
+border-radius:10px;
+
+min-width:65px;
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+.center{
+top:30%;
+width:220px;
+height:220px;
+}
+
+.ring1{
+width:220px;
+height:220px;
+}
+
+.ring2{
+width:160px;
+height:160px;
+}
+
+.ring3{
+width:90px;
+height:90px;
+}
+
+.bottom{
+height:40vh;
+}
+
+.logo{
+font-size:18px;
+}
+
+input{
+padding:12px;
+font-size:14px;
+}
+
+button{
+padding:12px;
+font-size:12px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+
+<div class="topbar">
+
+<div class="logo">
+JARVIS
+</div>
+
+<div class="clock"
+id="clock">
+00:00
+</div>
+
+</div>
+
+<!-- HUD -->
+
+<div class="center">
+
+<div class="ring1"></div>
+
+<div class="ring2"></div>
+
+<div class="ring3"></div>
+
+<div class="core"></div>
+
+</div>
+
+<!-- CHAT -->
+
+<div class="bottom">
+
+<div id="terminal">
+
+<p>> JARVIS ONLINE...</p>
+
+</div>
+
+<div class="input-area">
+
+<input
+type="text"
+id="commandInput"
+placeholder="Ask Jarvis anything..."
+>
+
+<button
+onclick="runCommand()">
+RUN
+</button>
+
+<button
+onclick="startListening()">
+🎤
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+/* CLOCK */
+
+function updateClock(){
+
+document
+.getElementById("clock")
+.innerHTML =
+new Date()
+.toLocaleTimeString();
+
+}
+
+setInterval(updateClock,1000);
+
+/* TERMINAL */
+
+const terminal =
+document.getElementById("terminal");
+
+function addMessage(text){
+
+terminal.innerHTML +=
+`<p>> ${text}</p>`;
+
+terminal.scrollTop =
+terminal.scrollHeight;
+
+}
+
+/* SPEAK */
+
+function speak(text){
+
+window.speechSynthesis.cancel();
+
+const speech =
+new SpeechSynthesisUtterance(text);
+
+speech.rate = 1;
+
+speech.pitch = 1;
+
+speech.volume = 1;
+
+window.speechSynthesis
+.speak(speech);
+
+}
+
+/* AI */
+
+async function askAI(message){
+
+try{
+
+const response =
+await fetch(
+'https://openrouter.ai/api/v1/chat/completions',
+{
+
+method:'POST',
+
+headers:{
+
+'Authorization':
+'Bearer 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',
+
+'Content-Type':
+'application/json'
+
+},
+
+body:JSON.stringify({
+
+model:
+'deepseek/deepseek-chat',
+
+messages:[
+
+{
+role:'system',
+
+content:
+'You are Jarvis from Iron Man. Reply like a futuristic AI assistant.'
+},
+
+{
+role:'user',
+
+content:message
+}
+
+]
+
+})
+
+}
+
+);
+
+const data =
+await response.json();
+
+console.log(data);
+
+if(
+data.choices &&
+data.choices.length > 0
+){
+
+return data
+.choices[0]
+.message.content;
+
+}
+else{
+
+return 'No AI response';
+
+}
+
+}
+catch(error){
+
+console.log(error);
+
+return 'AI connection failed';
+
+}
+
+}
+
+/* RUN */
+
+async function runCommand(textInput){
+
+const input =
+document.getElementById("commandInput");
+
+const command =
+textInput || input.value.trim();
+
+if(command==="") return;
+
+addMessage(command);
+
+input.value="";
+
+addMessage(
+'Jarvis : Thinking...'
+);
+
+const reply =
+await askAI(command);
+
+terminal.innerHTML =
+terminal.innerHTML.replace(
+'> Jarvis : Thinking...',
+''
+);
+
+addMessage(
+'Jarvis : ' + reply
+);
+
+speak(reply);
+
+}
+
+/* ENTER */
+
+document
+.getElementById("commandInput")
+.addEventListener(
+'keypress',
+function(e){
+
+if(e.key==='Enter'){
+
+runCommand();
+
+}
+
+}
+);
+
+/* MIC */
+
+const SpeechRecognition =
+
+window.SpeechRecognition ||
+
+window.webkitSpeechRecognition;
+
+if(SpeechRecognition){
+
+const recognition =
+new SpeechRecognition();
+
+recognition.lang='en-US';
+
+recognition.continuous=false;
+
+recognition.interimResults=false;
+
+window.startListening =
+function(){
+
+addMessage(
+'Listening...'
+);
+
+recognition.start();
+
+};
+
+recognition.onresult =
+function(event){
+
+const voice =
+event.results[0][0]
+.transcript;
+
+runCommand(voice);
+
+};
+
+recognition.onerror =
+function(event){
+
+addMessage(
+'Mic Error : ' +
+event.error
+);
+
+};
+
+}
+else{
+
+window.startListening =
+function(){
+
+alert(
+'Mic not supported in this browser'
+);
+
+};
+
+}
+
+/* STARTUP */
+
+window.onload = ()=>{
+
+setTimeout(()=>{
+
+speak(
+'Welcome boss. Jarvis online.'
+);
+
+},1000);
+
+};
+
+</script>
+
+</body>
+
+</html>
